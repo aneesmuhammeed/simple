@@ -122,27 +122,27 @@ asdfasdfasdfasdfasdfi++)
     return 0; 
 } 
  
-INPUT:
+// INPUT:
 
-INTERMEDIATE.TXT  
-2000 PROG START 2000  
-2000 ~    LDA   NUM1  
-2003 ~    ADD   NUM2  
-2006 ~    STA   RES  
-2009 NUM1 WORD  5  
-200C NUM2 WORD  7  
-200F RES  RESW  1  
-2012 ~    END   PROG 
+// INTERMEDIATE.TXT  
+// 2000 PROG START 2000  
+// 2000 ~    LDA   NUM1  
+// 2003 ~    ADD   NUM2  
+// 2006 ~    STA   RES  
+// 2009 NUM1 WORD  5  
+// 200C NUM2 WORD  7  
+// 200F RES  RESW  1  
+// 2012 ~    END   PROG 
 
-LENGTH.TXT: 
-12
+// LENGTH.TXT: 
+// 12
 
-SYMTAB.TXT: 
-NUM1 2009  
-NUM2 200C  
-RES 200F
+// SYMTAB.TXT: 
+// NUM1 2009  
+// NUM2 200C  
+// RES 200F
 
-OPTAB.TXT: 
-LDA 00  
-ADD 18  
-STA 0C 
+// OPTAB.TXT: 
+// LDA 00  
+// ADD 18  
+// STA 0C 
