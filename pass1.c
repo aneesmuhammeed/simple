@@ -81,22 +81,22 @@ int main() {
     return 0; 
 } 
 
-INPUT: 
+// INPUT: 
 
-INPUT.TXT:
+// INPUT.TXT:
 
-PROG START 2000 
-~    LDA   NUM1 
-~    ADD   NUM2 
-~    STA   RES 
-NUM1 WORD  5 
-NUM2 WORD  7 
-RES  RESW  1 
-~    END   PROG
+// PROG START 2000 
+// ~    LDA   NUM1 
+// ~    ADD   NUM2 
+// ~    STA   RES 
+// NUM1 WORD  5 
+// NUM2 WORD  7 
+// RES  RESW  1 
+// ~    END   PROG
 
-OPTAB.TXT: 
+// OPTAB.TXT: 
 
-LDA 00  
-ADD 18  
-STA 0C 
+// LDA 00  
+// ADD 18  
+// STA 0C 
 
