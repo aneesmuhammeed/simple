@@ -27,3 +27,13 @@ BEGIN
    DBMS_OUTPUT.PUT_LINE('The factorial of ' || num || ' is ' || fact);
 END;
 /
+
+--exe
+DECLARE
+   num NUMBER := 7;  -- Change this to get different Fibonacci numbers
+   fib NUMBER;
+BEGIN
+   fib := fibonacci(num);
+   DBMS_OUTPUT.PUT_LINE('The Fibonacci number at position ' || num || ' is ' || fib);
+END;
+/
