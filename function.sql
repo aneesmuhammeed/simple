@@ -1,19 +1,29 @@
-CREATE OR REPLACE FUNCTION calculate_square (number IN NUMBER)
+
+CREATE OR REPLACE FUNCTION factorial (n IN NUMBER)
 RETURN NUMBER
 IS
-   result NUMBER;
+   result NUMBER := 1;  
 BEGIN
-   result := number * number;
-   RETURN result;
+   IF n < 0 THEN
+      RETURN NULL;  
+   ELSIF n = 0 OR n = 1 THEN
+      RETURN 1;  
+   ELSE
+      FOR i IN 1..n LOOP
+         result := result * i;  
+      END LOOP;
+      RETURN result;  
+   END IF;
 END;
 /
 
---executing
+
+   --executing
 DECLARE
    num NUMBER := 5;
-   square NUMBER;
+   fact NUMBER;
 BEGIN
-   square := calculate_square(num);
-   DBMS_OUTPUT.PUT_LINE('The square of ' || num || ' is ' || square);
+   fact := factorial(num);
+   DBMS_OUTPUT.PUT_LINE('The factorial of ' || num || ' is ' || fact);
 END;
 /
