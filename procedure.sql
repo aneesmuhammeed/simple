@@ -16,3 +16,9 @@ EXCEPTION
         ROLLBACK;
         RAISE;
 END add_employee;
+
+
+--executing
+BEGIN
+    add_employee(102, 'Jane', 'Smith', 'jane.smith@example.com');
+END;
