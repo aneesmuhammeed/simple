@@ -1,77 +1,79 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-void main()
-{
+int main() {
     FILE *fp;
-    int i, j, staddr1;
-    char name[10], line[100], name1[10], staddr[10];
-
-    printf("Enter program name: ");
-    scanf("%s", name);
+    char line[100], name1[10];
+    char startAddrStr[10], progLenStr[10];
+    int startAddr, progLen, textAddr;
 
     fp = fopen("objectcode.txt", "r");
     if (fp == NULL) {
-        printf("Error opening file.\n");
-        exit(1);
+        printf("Error: Cannot open objectcode.txt\n");
+        return 1;
     }
 
+    // Read Header Record
     fscanf(fp, "%s", line);
     if (line[0] != 'H') {
-        printf("Invalid object program format.\n");
+        printf("Invalid object program format!\n");
         fclose(fp);
-        return;
+        return 1;
     }
 
-    i = 2;
-    j = 0;
-    while (line[i] != '^' && line[i] != '\0' && j < 6) {
-        name1[j++] = line[i++];
-    }
-    name1[j] = '\0';
+    // Example Header: H^TEST^001000^00107A
+    sscanf(line, "H^%[^'^']^%[^'^']^%s", name1, startAddrStr, progLenStr);
+    startAddr = (int)strtol(startAddrStr, NULL, 16);
+    progLen = (int)strtol(progLenStr, NULL, 16);
 
-    printf("Program name from object file: %s\n", name1);
+    printf("ABSOLUTE LOADER OUTPUT\n");
+    printf("--------------------------------------\n");
+    printf("Program Name: %s\n", name1);
+    printf("Start Address: %04X\n", startAddr);
+    printf("Program Length: %04X\n", progLen);
+    printf("--------------------------------------\n");
+    printf("Address\t\tByte\n");
+    printf("--------------------------------------\n");
 
-    if (strcmp(name, name1) == 0) {
-        while (fscanf(fp, "%s", line) != EOF) {
-            if (line[0] == 'T') {
-                i = 2;
-                j = 0;
-                while (line[i] != '^' && line[i] != '\0' && j < 6)
-                    staddr[j++] = line[i++];
-                staddr[j] = '\0';
+    // Process Text Records
+    while (fscanf(fp, "%s", line) != EOF) {
+        if (line[0] == 'T') {
+            char tempAddrStr[10], lenStr[10];
+            sscanf(line, "T^%[^'^']^%[^'^']", tempAddrStr, lenStr);
+            textAddr = (int)strtol(tempAddrStr, NULL, 16);
 
-                staddr1 = (int)strtol(staddr, NULL, 16);
+            // Skip 3 fields (T, start, length)
+            char *ptr = strchr(line + 1, '^');
+            for (int i = 0; i < 2 && ptr; i++)
+                ptr = strchr(ptr + 1, '^');
+            if (!ptr) continue;
+            ptr++;
 
-                int caretCount = 0;
-                while (line[i] != '\0' && caretCount < 2) {
-                    if (line[i] == '^')
-                        caretCount++;
-                    i++;
-                }
+            // Process object code bytes
+            while (*ptr && *ptr != '$') {
+                if (*ptr == '^') { ptr++; continue; }
 
-                while (line[i] != '$' && line[i] != '\0') {
-                    if (line[i] != '^') {
-                        printf("00%04X\t%c%c\n", staddr1, line[i], line[i + 1]);
-                        staddr1++;
-                        i += 2;
-                    } else {
-                        i++;
-                    }
-                }
-            } else if (line[0] == 'E') {
-                printf("\nEnd of program.\n");
-                break;
+                // Take two hex digits (one byte)
+                char byte[3];
+                byte[0] = *ptr++;
+                byte[1] = *ptr++;
+                byte[2] = '\0';
+
+                printf("%04X\t\t%s\n", textAddr, byte);
+                textAddr++;
             }
+        } 
+        else if (line[0] == 'E') {
+            printf("--------------------------------------\n");
+            printf("End of program.\n");
+            break;
         }
-    } else {
-        printf("Program name does not match.\n");
     }
 
     fclose(fp);
+    return 0;
 }
-
 
 
 //objectcode.txt
