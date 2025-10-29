@@ -1,0 +1,128 @@
+ASSUME DS:DATA, CS:CODE
+
+DATA SEGMENT
+    MSG1 DB 0AH,0DH,'ENTER FIRST 32-BIT NUMBER: $'
+    MSG2 DB 0AH,0DH,'ENTER SECOND 32-BIT NUMBER: $'
+    MSG3 DB 0AH,0DH,'DIFFERENCE IS: $'
+    MSG4 DB 0AH,0DH,'DIFFERENCE IS: NEGATIVE $'
+    NUM1 DB 12 DUP(?)        ; buffer for first number
+    NUM2 DB 12 DUP(?)        ; buffer for second number
+    RESULT DB 12 DUP(?)      ; buffer for result
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    ; ===== FIRST NUMBER INPUT =====
+    LEA DX, MSG1
+    MOV AH, 09H
+    INT 21H
+
+    LEA DI, NUM1
+READ_NUM1:
+    MOV AH, 01H
+    INT 21H
+    CMP AL, 0DH
+    JE DONE_NUM1
+    STOSB
+    JMP READ_NUM1
+DONE_NUM1:
+    MOV BYTE PTR [DI], 0
+
+    ; ===== SECOND NUMBER INPUT =====
+    LEA DX, MSG2
+    MOV AH, 09H
+    INT 21H
+
+    LEA DI, NUM2
+READ_NUM2:
+    MOV AH, 01H
+    INT 21H
+    CMP AL, 0DH
+    JE DONE_NUM2
+    STOSB
+    JMP READ_NUM2
+DONE_NUM2:
+    MOV BYTE PTR [DI], 0
+
+    ; ===== CONVERT FIRST NUMBER TO INTEGER =====
+    XOR AX, AX
+    XOR BX, BX
+    LEA SI, NUM1
+CONV1:
+    LODSB
+    CMP AL, 0
+    JE END_CONV1
+    SUB AL, '0'
+    MOV AH, 0
+    MOV CX, 10
+    MUL CX
+    ADD BX, AX
+    JMP CONV1
+END_CONV1:
+    MOV DX, BX       ; store first integer in DX
+
+    ; ===== CONVERT SECOND NUMBER TO INTEGER =====
+    XOR AX, AX
+    XOR BX, BX
+    LEA SI, NUM2
+CONV2:
+    LODSB
+    CMP AL, 0
+    JE END_CONV2
+    SUB AL, '0'
+    MOV AH, 0
+    MOV CX, 10
+    MUL CX
+    ADD BX, AX
+    JMP CONV2
+END_CONV2:
+
+    ; ===== SUBTRACTION (32-BIT SIMULATION) =====
+    ; DX = first number, BX = second number
+    MOV AX, DX
+    SUB AX, BX
+    JNC POSITIVE_RESULT   ; no borrow → positive
+    NEG AX
+    JMP NEG_RESULT
+
+POSITIVE_RESULT:
+    LEA DX, MSG3
+    MOV AH, 09H
+    INT 21H
+    JMP PRINT_RESULT
+
+NEG_RESULT:
+    LEA DX, MSG4
+    MOV AH, 09H
+    INT 21H
+
+PRINT_RESULT:
+    ; ===== CONVERT RESULT TO DECIMAL STRING =====
+    MOV CX, 0
+    LEA DI, RESULT
+    MOV BX, 10
+
+CONVERT_LOOP:
+    XOR DX, DX
+    DIV BX
+    ADD DL, '0'
+    PUSH DX
+    INC CX
+    CMP AX, 0
+    JNE CONVERT_LOOP
+
+PRINT_LOOP:
+    POP DX
+    MOV AH, 02H
+    INT 21H
+    LOOP PRINT_LOOP
+
+    ; ===== EXIT =====
+    MOV AH, 4CH
+    INT 21H
+
+CODE ENDS
+END START
