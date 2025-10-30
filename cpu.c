@@ -463,3 +463,87 @@ int main() {
 
     return 0;
 }
+
+
+//priority-preemp
+#include <stdio.h>
+
+struct Process {
+    int pid;
+    int arrival_time;
+    int burst_time;
+    int remaining_time;
+    int priority;
+    int waiting_time;
+    int turnaround_time;
+    int completed;
+};
+
+int main() {
+    int n, completed = 0, current_time = 0, min_priority, shortest;
+    float total_waiting = 0, total_turnaround = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    for (int i = 0; i < n; i++) {
+        p[i].pid = i + 1;
+        printf("\nEnter Arrival Time, Burst Time and Priority for Process %d: ", p[i].pid);
+        scanf("%d %d %d", &p[i].arrival_time, &p[i].burst_time, &p[i].priority);
+        p[i].remaining_time = p[i].burst_time;
+        p[i].completed = 0;
+    }
+
+    printf("\nProcess\tAT\tBT\tPR\tWT\tTAT\n");
+
+    while (completed != n) {
+        shortest = -1;
+        min_priority = 9999;
+
+        // Find process with highest priority (lowest priority number)
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival_time <= current_time && p[i].completed == 0) {
+                if (p[i].priority < min_priority ||
+                   (p[i].priority == min_priority && p[i].arrival_time < p[shortest].arrival_time)) {
+                    min_priority = p[i].priority;
+                    shortest = i;
+                }
+            }
+        }
+
+        if (shortest == -1) {
+            current_time++; // No process ready
+            continue;
+        }
+
+        // Run the chosen process for 1 unit of time
+        p[shortest].remaining_time--;
+        current_time++;
+
+        // If process completed
+        if (p[shortest].remaining_time == 0) {
+            p[shortest].completed = 1;
+            completed++;
+            p[shortest].turnaround_time = current_time - p[shortest].arrival_time;
+            p[shortest].waiting_time = p[shortest].turnaround_time - p[shortest].burst_time;
+
+            total_waiting += p[shortest].waiting_time;
+            total_turnaround += p[shortest].turnaround_time;
+
+            printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+                   p[shortest].pid,
+                   p[shortest].arrival_time,
+                   p[shortest].burst_time,
+                   p[shortest].priority,
+                   p[shortest].waiting_time,
+                   p[shortest].turnaround_time);
+        }
+    }
+
+    printf("\nAverage Waiting Time: %.2f", total_waiting / n);
+    printf("\nAverage Turnaround Time: %.2f\n", total_turnaround / n);
+
+    return 0;
+}
